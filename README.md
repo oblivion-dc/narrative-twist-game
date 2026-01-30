@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<title>Narrative Twist Deluxe</title>
+<style>
+body{
+  margin:0;
+  background:linear-gradient(120deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+  font-family:system-ui;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  overflow:hidden;
+  transition: background 0.3s;
+}
+#box{
+  width:90%;
+  max-width:420px;
+  background:rgba(0,0,0,0.5);
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+  transition: transform 0.2s;
+}
+button{
+  width:100%;
+  margin:10px 0;
+  padding:14px;
+  border:none;
+  border-radius:999px;
+  font-size:16px;
+  cursor:pointer;
+}
+.attack{background:#ff4d4d;}
+.mock{background:#ffb703;color:#000;}
+.empathy{background:#06d6a0;color:#000;}
+#stats{
+  margin-top:15px;
+  font-size:14px;
+}
+#timer{
+  font-size:16px;
+  margin-bottom:10px;
+}
+</style>
+</head>
+<body>
+
+<div id="box">
+  <div id="timer">Time: 3s</div>
+  <div id="story"></div>
+
+  <div id="choices">
+    <button class="attack" onclick="choose('attack')">Attack</button>
+    <button class="mock" onclick="choose('mock')">Mock</button>
+    <button class="empathy" onclick="choose('empathy')">Empathize</button>
+  </div>
+
+  <div id="stats"></div>
+</div>
+
+<audio id="soundAttack" src="https://freesound.org/data/previews/320/320655_5260877-lq.mp3"></audio>
+<audio id="soundMock" src="https://freesound.org/data/previews/341/341695_6249144-lq.mp3"></audio>
+<audio id="soundEmpathy" src="https://freesound.org/data/previews/270/270367_5121236-lq.mp3"></audio>
+
+<script>
+const stories = [
+  "Hate Club ржП ржПржХржЬржи ржмрж▓рж▓рзЛ: 'ржЖржорж┐ ржЖржЬ ржЦрзБржм ржЦрж╛рж░рж╛ржк ржлрж┐рж▓ ржХрж░ржЫрж┐'",
+  "Hate Club ржП ржПржХржЬржи ржкрзЛрж╕рзНржЯ ржХрж░рж▓рзЛ: 'ржжрзЗрж╢рзЗ ржХрж┐ржЫрзБржЗ ржарж┐ржХ ржирж╛ржЗ'",
+  "Hate Club ржП ржПржХржЬржи ржмрж▓рж▓рзЛ: 'ржЖржорж┐ рж░рж╛ржЬржирзАрждрж┐ ржмрзБржЭрж┐ ржирж╛'",
+  "Hate Club ржП ржПржХржЬржи рж▓рж┐ржЦрж▓рзЛ: 'ржЖржорж┐ рж╢рзБржзрзБ рж╢рж╛ржирзНрждрж┐ ржЪрж╛ржЗ'"
+];
+
+let chaos=0, humanity=0, clout=0;
+let timeLeft=3;
+let timerInterval;
+
+function nextStory(){
+  timeLeft=3;
+  document.getElementById("timer").innerText = `Time: ${timeLeft}s`;
+  document.getElementById("story").innerText =
+    stories[Math.floor(Math.random()*stories.length)];
+  startTimer();
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    document.getElementById("timer").innerText = `Time: ${timeLeft}s`;
+    if(timeLeft<=0){
+      choose("mock"); // default auto-mock
+    }
+  },1000);
+}
+
+function choose(type){
+  clearInterval(timerInterval);
+  const box=document.getElementById("box");
+
+  const chance=Math.random();
+  if(type==="attack"){
+    chaos+=15; clout+=10;
+    if(chance<0.1){ chaos-=5; } 
+    document.getElementById("soundAttack").play();
+    box.style.transform="translate(5px,5px)";
+    setTimeout(()=>box.style.transform="translate(0,0)",200);
+    document.body.style.background="linear-gradient(120deg,#ff0000,#660000)";
+  }
+  if(type==="mock"){
+    chaos+=10; clout+=15; humanity-=5;
+    if(chance<0.2){ clout-=5; } 
+    document.getElementById("soundMock").play();
+    box.style.transform="translate(-5px,5px)";
+    setTimeout(()=>box.style.transform="translate(0,0)",200);
+    document.body.style.background="linear-gradient(120deg,#ff6600,#cc3300)";
+  }
+  if(type==="empathy"){
+    humanity+=15; chaos-=10;
+    if(chance<0.2){ humanity-=5; } 
+    document.getElementById("soundEmpathy").play();
+    box.style.transform="translate(5px,-5px)";
+    setTimeout(()=>box.style.transform="translate(0,0)",200);
+    document.body.style.background="linear-gradient(120deg,#06d6a0,#004d40)";
+  }
+
+  if(chaos>=50 || clout>=50 || humanity>=50){
+    endGame();
+  } else {
+    nextStory();
+    update();
+  }
+}
+
+function update(){
+  document.getElementById("stats").innerText =
+   `Chaos: ${chaos} | Clout: ${clout} | Humanity: ${humanity}`;
+}
+
+function endGame(){
+  clearInterval(timerInterval);
+  let result="";
+  let message="";
+
+  if(clout>humanity){
+    result="ржЖржкржирж┐ ржПржХржЬржи Viral Warrior ЁЯШТ";
+    message="ржЖржкржирж╛рж░ attack skill ржХрж╛ржмрж╛ржм, group ржП рж╕ржмрж╛ржЗ ржмрж▓ржмрзЗ wow! ЁЯФе";
+  }
+  else if(chaos>humanity){
+    result="ржЖржкржирж┐ Internet Pyromaniac ЁЯФе";
+    message="ржЖржкржирж╛рж░ chaos рждрзИрж░рж┐ ржХрж░рж╛рж░ ржХрзНрж╖ржорждрж╛ ржЕрж╕рж╛ржзрж╛рж░ржг! ЁЯШО";
+  }
+  else{
+    result="ржЖржкржирж┐ ржмрж┐ржкржЬрзНржЬржиржХржнрж╛ржмрзЗ ржнрж╛рж▓рзЛ ржорж╛ржирзБрж╖ ЁЯШР";
+    message="ржЖржкржирж╛рж░ Hate Club ржП ржерж╛ржХрж╛рж░ ржпрзЛржЧрзНржпрждрж╛ ржирзЗржЗЁЯСК";
+  }
+
+  // final output: only result + appreciation message
+  document.getElementById("box").innerHTML =
+   `<h2>${result}</h2>
+    <p>${message}</p>`;
+}
+
+nextStory();
+update();
+</script>
+</body>
+</html>
